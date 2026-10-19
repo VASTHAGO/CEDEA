@@ -3,51 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEDEA - Dashboard en Línea</title>
-    <!-- Importamos Chart.js para los gráficos -->
+    <title>CEDEA - Dashboard Clínico</title>
+    <!-- Importamos Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        header { background: #2c3e50; color: white; padding: 15px 30px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
-        .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        header { background: #2c3e50; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        .stats-container { display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 220px; text-align: center; }
+        .stat-card h4 { margin: 0; color: #7f8c8d; font-size: 14px; }
+        .stat-card p { font-size: 24px; font-weight: bold; color: #2c3e50; margin: 10px 0 0 0; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 20px; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 45%; min-width: 300px; }
-        h3 { margin-top: 0; color: #34495e; }
+        .table-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 93%; margin: 0 auto; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #34495e; color: white; }
+        tr:hover { background-color: #f1f1f1; }
+        .loading { text-align: center; font-style: italic; color: #e67e22; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Panel de Control - CEDEA</h1>
-        <p>Clínica Endocrinológica Dios Es Amor</p>
+        <h1>Clínica Endocrinológica Dios Es Amor (CEDEA)</h1>
+        <p>Panel de Control y Monitoreo en Línea</p>
     </header>
 
-    <div class="container">
-        <!-- Tarjeta para un gráfico -->
-        <div class="card">
-            <h3>Estadísticas Generales</h3>
-            <canvas id="miGrafico"></canvas>
+    <!-- Tarjetas de Resumen Rápido -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <h4>Total Pacientes</h4>
+            <p id="total-pacientes">-</p>
         </div>
-        <!-- Tarjeta de estado -->
-        <div class="card">
-            <h3>Estado de Conexión</h3>
-            <p id="estado">Conectando con Google Sheets...</p>
+        <div class="stat-card">
+            <h4>Citas Registradas</h4>
+            <p id="total-citas">-</p>
         </div>
     </div>
 
+    <!-- Contenedor de Gráficos -->
+    <div class="container">
+        <div class="card">
+            <h3>Distribución por Dispositivo</h3>
+            <canvas id="graficoDispositivo"></canvas>
+        </div>
+        <div class="card">
+            <h3>Estado de Conexión</h3>
+            <p id="estado" class="loading">Conectando con Google Sheets...</p>
+        </div>
+    </div>
+
+    <!-- Tabla Detallada -->
+    <div class="table-container">
+        <h3>Listado de Pacientes y Citas</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre y Apellidos</th>
+                    <th>Cédula</th>
+                    <th>Edad</th>
+                    <th>Dispositivo</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Factores de Riesgo</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-cuerpo">
+                <tr><td colspan="7" class="loading">Cargando datos desde la nube...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
     <script>
-        // Configuración inicial de prueba para el gráfico
-        const ctx = document.getElementById('miGrafico').getContext('2d');
-        const miGrafico = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Enero', 'Febrero', 'Marzo', 'Abril'],
-                datasets: [{
-                    label: 'Registros',
-                    data: [12, 19, 3, 5],
-                    backgroundColor: 'rgba(52, 152, 219, 0.7)'
-                }]
-            }
-        });
+        // TU URL DE GOOGLE APPS SCRIPT
+        const URL_API = "https://script.google.com/macros/s/AKfycbzcLzpoqxfNkzVj-1izbUnQ-xSEGpesPrcpyz-Cibj0A-bKct2uiZ5abCAVULJ4hBeIow/exec";
+
+        fetch(URL_API)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("estado").innerText = "¡Conectado exitosamente con Google Sheets! 🚀";
+                document.getElementById("estado").style.color = "#27ae60";
+                
+                let totalPacientes = data.length;
+                document.getElementById("total-pacientes").innerText = totalPacientes;
+                document.getElementById("total-citas").innerText = totalPacientes;
+
+                let tablaCuerpo = document.getElementById("tabla-cuerpo");
+                tablaCuerpo.innerHTML = ""; // Limpiar carga
+
+                let conteoDispositivos = {};
+
+                data.forEach(item => {
+                    // Rellenar tabla
+                    let fila = `<tr>
+                        <td>${item.nombre || ''}</td>
+                        <td>${item.cedula || ''}</td>
+                        <td>${item.edad || ''}</td>
+                        <td>${item.dispositivo || ''}</td>
+                        <td>${item.fecha || ''}</td>
+                        <td>${item.hora || ''}</td>
+                        <td>${item.factoresRiesgo || ''}</td>
+                    `;
+                    tablaCuerpo.innerHTML += fila;
+
+                    // Contar dispositivos para el gráfico
+                    let disp = item.dispositivo ? "Dispositivo " + item.dispositivo : "Sin Dispositivo";
+                    conteoDispositivos[disp] = (conteoDispositivos[disp] || 0) + 1;
+                });
+
+                // Crear Gráfico con Chart.js
+                const ctx = document.getElementById('graficoDispositivo').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(conteoDispositivos),
+                        datasets: [{
+                            data: Object.values(conteoDispositivos),
+                            backgroundColor: ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6']
+                        }]
+                    }
+                });
+
+            })
+            .catch(error => {
+                console.error("Error al conectar:", error);
+                document.getElementById("estado").innerText = "Error al conectar con la base de datos.";
+                document.getElementById("estado").style.color = "#c0392b";
+            });
     </script>
 
 </body>
