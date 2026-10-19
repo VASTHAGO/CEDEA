@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEDEA - Dashboard en Línea</title>
+    <!-- Importamos Chart.js para los gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        header { background: #2c3e50; color: white; padding: 15px 30px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+        .container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 45%; min-width: 300px; }
+        h3 { margin-top: 0; color: #34495e; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Panel de Control - CEDEA</h1>
+        <p>Clínica Endocrinológica Dios Es Amor</p>
+    </header>
+
+    <div class="container">
+        <!-- Tarjeta para un gráfico -->
+        <div class="card">
+            <h3>Estadísticas Generales</h3>
+            <canvas id="miGrafico"></canvas>
+        </div>
+        <!-- Tarjeta de estado -->
+        <div class="card">
+            <h3>Estado de Conexión</h3>
+            <p id="estado">Conectando con Google Sheets...</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuración inicial de prueba para el gráfico
+        const ctx = document.getElementById('miGrafico').getContext('2d');
+        const miGrafico = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril'],
+                datasets: [{
+                    label: 'Registros',
+                    data: [12, 19, 3, 5],
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)'
+                }]
+            }
+        });
+    </script>
+
+</body>
+</html>
